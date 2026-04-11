@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,21 +9,26 @@
   </head>
 
   <body>
-    <div id="root">
-      <template id="movie-card">
-        <section>
-          <h3></h3>
-          <img src="" alt="" />
-          <p></p>
-          <a href=""></a>
-        </section>
-      </template>
-    </div>
+    <header class="controls">
+      <select id="episode-select">
+        <option value="all">All episodes</option>
+      </select>
+      <input type="text" id="search-input" placeholder="Search episodes...">
+      <span id="search-stats"></span>
+    </header>
 
-    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
+    <main id="root"></main>
+
+    <template id="movie-card">
+      <section class="episode-card">
+        <h3></h3>
+        <img src="" alt="" />
+        <p></p>
+        <a href="" target="_blank">View on TVMaze</a>
+      </section>
+    </template>
+
     <script src="episodes.js"></script>
-
-    <!-- Loads YOUR javascript code -->
     <script src="script.js"></script>
   </body>
 </html>
