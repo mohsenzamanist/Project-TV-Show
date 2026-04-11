@@ -1,9 +1,15 @@
-function setup() {
-  const allEpisodes = getAllEpisodes();
+const searchInput = document.getElementById("search-input");
+const rootElem = document.getElementById("root");
+
+function skeletonLoader() {
+  rootElem.innerHTML = "<h3>Data being loaded...</h3>";
+}
+async function setup() {
+  skeletonLoader();
+  const allEpisodes = await getAllEpisodes();
   makePageForEpisodes(allEpisodes);
   populateSelect(allEpisodes);
 
-  const searchInput = document.getElementById("search-input");
   searchInput.addEventListener("input", (e) => {
     searchEpisodes(allEpisodes, e.target.value);
   });
@@ -14,15 +20,18 @@ function makeTitle(name, season, number) {
 }
 
 function makePageForEpisodes(episodeList) {
-  const rootElem = document.getElementById("root");
   rootElem.innerHTML = ""; // Fix: Clear previous episodes
 
   const movieCards = episodeList.map(
     ({ name, season, number, image, summary, url }) => {
       const movieCardTemplate = document.getElementById("movie-card");
       const movieCard = movieCardTemplate.content.cloneNode(true);
-      
-      movieCard.querySelector("h3").textContent = makeTitle(name, season, number);
+
+      movieCard.querySelector("h3").textContent = makeTitle(
+        name,
+        season,
+        number,
+      );
       movieCard.querySelector("img").src = image.medium;
       movieCard.querySelector("img").alt = name;
       movieCard.querySelector("p").innerHTML = summary;
@@ -30,7 +39,7 @@ function makePageForEpisodes(episodeList) {
       movieCard.querySelector("a").textContent = "View on TVMaze"; // Cleaner link text
 
       return movieCard;
-    }
+    },
   );
 
   rootElem.append(...movieCards);
@@ -40,7 +49,7 @@ function searchEpisodes(allEpisodes, searchTerm) {
   const lowerSearch = searchTerm.toLowerCase();
   const filtered = allEpisodes.filter((episode) => {
     return (
-      episode.name.toLowerCase().includes(lowerSearch) || 
+      episode.name.toLowerCase().includes(lowerSearch) ||
       episode.summary.toLowerCase().includes(lowerSearch)
     );
   });
@@ -53,11 +62,15 @@ function searchEpisodes(allEpisodes, searchTerm) {
 
 function populateSelect(allEpisodes) {
   const select = document.getElementById("episode-select");
-  
+
   allEpisodes.forEach((episode) => {
     const option = document.createElement("option");
     option.value = episode.id;
-    option.textContent = makeTitle(episode.name, episode.season, episode.number);
+    option.textContent = makeTitle(
+      episode.name,
+      episode.season,
+      episode.number,
+    );
     select.appendChild(option);
   });
 
@@ -66,7 +79,7 @@ function populateSelect(allEpisodes) {
     if (selectedId === "all") {
       makePageForEpisodes(allEpisodes);
     } else {
-      const selectedEpisode = allEpisodes.filter(ep => ep.id == selectedId);
+      const selectedEpisode = allEpisodes.filter((ep) => ep.id == selectedId);
       makePageForEpisodes(selectedEpisode);
     }
   });
