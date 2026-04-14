@@ -10,21 +10,21 @@ function skeletonLoader(text = "Data being loaded...") {
 // Level 400: Initial setup to load all shows
 async function setup() {
   skeletonLoader("Loading shows list...");
-  
+
   try {
     // 1. Fetch all shows using the function in allEpisodes.js
     const allShows = await getAllShows();
 
     // 2. Requirement 5: Sort alphabetically (case-insensitive)
-    allShows.sort((a, b) => 
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    allShows.sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
     );
 
     // 3. Populate the Show Dropdown
     populateShowSelect(allShows);
-    
-    rootElem.innerHTML = "<h3>Please select a show from the dropdown above.</h3>";
 
+    rootElem.innerHTML =
+      "<h3>Please select a show from the dropdown above.</h3>";
   } catch (error) {
     rootElem.innerHTML = `<h3>Error initializing app: ${error.message}</h3>`;
   }
@@ -32,24 +32,26 @@ async function setup() {
 
 // Requirement 1 & 2: Handles the Show Dropdown
 function populateShowSelect(allShows) {
-  allShows.forEach((show) => {
+  const options = allShows.map(({ name, id }) => {
     const option = document.createElement("option");
-    option.value = show.id;
-    option.textContent = show.name;
-    showSelect.appendChild(option);
+    option.value = id;
+    option.textContent = name;
+    return option;
   });
+  showSelect.append(...options);
 
   showSelect.addEventListener("change", async (e) => {
     const showId = e.target.value;
     if (showId) {
       skeletonLoader("Loading episodes for selected show...");
       // Requirement 3: Fetch episodes for specific show
-      const episodes = await getEpisodesForShow(showId);
-      
+      const episodes = await getAllEpisodes(showId);
+
       // Initialize the UI with the new data
       initEpisodesUI(episodes);
     } else {
-      rootElem.innerHTML = "<h3>Please select a show from the dropdown above.</h3>";
+      rootElem.innerHTML =
+        "<h3>Please select a show from the dropdown above.</h3>";
       episodeSelect.innerHTML = '<option value="all">All episodes</option>';
     }
   });
@@ -64,34 +66,41 @@ function initEpisodesUI(episodes) {
   // We replace the search input with a clone to remove old event listeners
   const newSearch = searchInput.cloneNode(true);
   searchInput.parentNode.replaceChild(newSearch, searchInput);
-  
+
   newSearch.addEventListener("input", (e) => {
     searchEpisodes(episodes, e.target.value);
   });
-  
-  // Reset search stats text
-  document.getElementById("search-stats").textContent = `Displaying ${episodes.length} / ${episodes.length} episodes`;
-}
 
+  // Reset search stats text
+  document.getElementById("search-stats").textContent =
+    `Displaying ${episodes.length} / ${episodes.length} episodes`;
+}
 
 function makeTitle(name, season, number) {
   return `${name} - S${String(season).padStart(2, "0")}E${String(number).padStart(2, "0")}`;
 }
 
 function makePageForEpisodes(episodeList) {
-  rootElem.innerHTML = ""; 
+  rootElem.innerHTML = "";
 
   const movieCards = episodeList.map(
     ({ name, season, number, image, summary, url }) => {
       const movieCardTemplate = document.getElementById("movie-card");
       const movieCard = movieCardTemplate.content.cloneNode(true);
 
-      movieCard.querySelector("h3").textContent = makeTitle(name, season, number);
-      
+      movieCard.querySelector("h3").textContent = makeTitle(
+        name,
+        season,
+        number,
+      );
+
       // Safety check: Show placeholder if image is missing
-      movieCard.querySelector("img").src = image ? image.medium : "https://via.placeholder.com/210x295?text=No+Image";
+      movieCard.querySelector("img").src = image
+        ? image.medium
+        : "https://via.placeholder.com/210x295?text=No+Image";
       movieCard.querySelector("img").alt = name;
-      movieCard.querySelector("p").innerHTML = summary || "No summary available.";
+      movieCard.querySelector("p").innerHTML =
+        summary || "No summary available.";
       movieCard.querySelector("a").href = url;
 
       return movieCard;
@@ -105,7 +114,9 @@ function searchEpisodes(allEpisodes, searchTerm) {
   const lowerSearch = searchTerm.toLowerCase();
   const filtered = allEpisodes.filter((episode) => {
     const nameMatch = episode.name.toLowerCase().includes(lowerSearch);
-    const summaryMatch = episode.summary ? episode.summary.toLowerCase().includes(lowerSearch) : false;
+    const summaryMatch = episode.summary
+      ? episode.summary.toLowerCase().includes(lowerSearch)
+      : false;
     return nameMatch || summaryMatch;
   });
 

@@ -1,5 +1,5 @@
-const url = "https://api.tvmaze.com/shows/82/episodes";
-async function getAllEpisodes() {
+async function getAllEpisodes(showId) {
+  const url = `https://api.tvmaze.com/shows/${showId}/episodes`;
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -28,7 +28,9 @@ async function getAllShows() {
 // Function to get episodes based on a specific show ID (Requirement 3)
 async function getEpisodesForShow(showId) {
   try {
-    const response = await fetch(`https://api.tvmaze.com/shows/${showId}/episodes`);
+    const response = await fetch(
+      `https://api.tvmaze.com/shows/${showId}/episodes`,
+    );
     if (!response.ok) throw new Error("Could not load episodes");
     return await response.json();
   } catch (error) {
