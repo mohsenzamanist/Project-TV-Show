@@ -1,16 +1,25 @@
+const searchShow = document.getElementById("search-show");
 const searchInput = document.getElementById("search-input");
 const rootElem = document.getElementById("root");
 const showSelect = document.getElementById("show-select");
 const episodeSelect = document.getElementById("episode-select");
+const showView = document.getElementById("show-view");
+const episodeView = document.getElementById("episode-view");
+const showHeader = document.getElementById("show-header");
+const episodeHeader = document.getElementById("episode-header");
+const backToShowsView = document.getElementById("back-to-shows");
+const foundShows = document.getElementById("found-shows");
+const searchStatsElm = document.getElementById("search-stats");
 
+let episodesCache = {};
 function skeletonLoader(text = "Data being loaded...") {
-  rootElem.innerHTML = `<h3>${text}</h3>`;
+  episodeView.innerHTML = `<h3>${text}</h3>`;
 }
 
 // Level 400: Initial setup to load all shows
 async function setup() {
-  skeletonLoader("Loading shows list...");
-
+  showShowsPage();
+  showView.innerHTML = "Shows being loaded...";
   try {
     // 1. Fetch all shows using the function in allEpisodes.js
     const allShows = await getAllShows();
@@ -19,17 +28,62 @@ async function setup() {
     allShows.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
     );
-
-    // 3. Populate the Show Dropdown
-    populateShowSelect(allShows);
-
-    rootElem.innerHTML =
-      "<h3>Please select a show from the dropdown above.</h3>";
+    makePageForShows(allShows);
+    searchShow.addEventListener("input", (e) => {
+      searchShows(e.target.value.toLowerCase(), allShows);
+    });
   } catch (error) {
     rootElem.innerHTML = `<h3>Error initializing app: ${error.message}</h3>`;
   }
 }
 
+function makePageForShows(allShows) {
+  showView.innerHTML = "";
+  populateShowSelect(allShows);
+  const showCardTemplate = document.getElementById("show-card-template");
+  const showCards = allShows.map(
+    ({
+      id,
+      name,
+      genres,
+      status,
+      runtime,
+      image = {},
+      summary,
+      rating = {},
+    }) => {
+      const { medium } = image;
+      const { average } = rating;
+      const showCard = showCardTemplate.content.cloneNode(true);
+      const title = showCard.querySelector("h3");
+      title.textContent = name;
+      title.dataset.id = id;
+      title.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        if (!episodesCache[id]) {
+          episodesCache[id] = await getAllEpisodes(id);
+        }
+        showSelect.value = id;
+
+        initEpisodesUI(episodesCache[id]);
+      });
+      showCard.querySelector("img").alt = name;
+      showCard.querySelector("img").src = medium;
+      showCard.querySelector("#summary").innerHTML = summary;
+      showCard.querySelector("#rated").textContent += average;
+      showCard.querySelector("#genres").textContent += genres.reduce(
+        (acc, curr) => (acc += ` ${curr}`),
+        "",
+      );
+      showCard.querySelector("#status").textContent += status;
+      showCard.querySelector("#runtime").textContent += runtime;
+
+      return showCard;
+    },
+  );
+
+  showView.append(...showCards);
+}
 // Requirement 1 & 2: Handles the Show Dropdown
 function populateShowSelect(allShows) {
   const options = allShows.map(({ name, id }) => {
@@ -41,16 +95,15 @@ function populateShowSelect(allShows) {
   showSelect.append(...options);
 
   showSelect.addEventListener("change", async (e) => {
-    const showId = e.target.value;
-    if (showId) {
+    const id = e.target.value;
+    if (id) {
       skeletonLoader("Loading episodes for selected show...");
       // Requirement 3: Fetch episodes for specific show
-      const episodes = await getAllEpisodes(showId);
-
+      if (!episodesCache[id]) episodesCache[id] = await getAllEpisodes(id);
       // Initialize the UI with the new data
-      initEpisodesUI(episodes);
+      initEpisodesUI(episodesCache[id]);
     } else {
-      rootElem.innerHTML =
+      episodeView.innerHTML =
         "<h3>Please select a show from the dropdown above.</h3>";
       episodeSelect.innerHTML = '<option value="all">All episodes</option>';
     }
@@ -59,21 +112,26 @@ function populateShowSelect(allShows) {
 
 // Requirement 4: Resets UI and Search when a new show is loaded
 function initEpisodesUI(episodes) {
+  searchInput.value = "";
   makePageForEpisodes(episodes);
   populateSelect(episodes);
+  showEpisodesPage();
+
+  backToShowsView.addEventListener("click", () => {
+    searchShow.value = "";
+    foundShows.textContent = "";
+    showShowsPage();
+  });
 
   // Requirement 4: Refresh Search Listener
   // We replace the search input with a clone to remove old event listeners
-  const newSearch = searchInput.cloneNode(true);
-  searchInput.parentNode.replaceChild(newSearch, searchInput);
 
-  newSearch.addEventListener("input", (e) => {
+  searchInput.addEventListener("input", (e) => {
     searchEpisodes(episodes, e.target.value);
   });
 
   // Reset search stats text
-  document.getElementById("search-stats").textContent =
-    `Displaying ${episodes.length} / ${episodes.length} episodes`;
+  searchStatsElm.textContent = `Displaying ${episodes.length} / ${episodes.length} episodes`;
 }
 
 function makeTitle(name, season, number) {
@@ -81,45 +139,58 @@ function makeTitle(name, season, number) {
 }
 
 function makePageForEpisodes(episodeList) {
-  rootElem.innerHTML = "";
+  episodeView.innerHTML = "";
 
-  const movieCards = episodeList.map(
+  const episodeCards = episodeList.map(
     ({ name, season, number, image, summary, url }) => {
-      const movieCardTemplate = document.getElementById("movie-card");
-      const movieCard = movieCardTemplate.content.cloneNode(true);
+      const episodeCardTemplate = document.getElementById(
+        "episode-card-template",
+      );
+      const episodeCard = episodeCardTemplate.content.cloneNode(true);
 
-      movieCard.querySelector("h3").textContent = makeTitle(
+      episodeCard.querySelector("h3").textContent = makeTitle(
         name,
         season,
         number,
       );
 
       // Safety check: Show placeholder if image is missing
-      movieCard.querySelector("img").src = image
+      episodeCard.querySelector("img").src = image
         ? image.medium
         : "https://via.placeholder.com/210x295?text=No+Image";
-      movieCard.querySelector("img").alt = name;
-      movieCard.querySelector("p").innerHTML =
+      episodeCard.querySelector("img").alt = name;
+      episodeCard.querySelector("p").innerHTML =
         summary || "No summary available.";
-      movieCard.querySelector("a").href = url;
+      episodeCard.querySelector("a").href = url;
 
-      return movieCard;
+      return episodeCard;
     },
   );
 
-  rootElem.append(...movieCards);
+  episodeView.append(...episodeCards);
 }
 
+function searchShows(searchTerm, allShows) {
+  const filteredShows = allShows.filter(
+    ({ name, genres, summary }) =>
+      name.toLowerCase().includes(searchTerm) ||
+      summary.toLowerCase().includes(searchTerm) ||
+      genres.some((genre) => genre.includes(searchTerm)),
+  );
+  foundShows.textContent = `found ${filteredShows.length} ${filteredShows.length === 1 ? "show" : "shows"}`;
+  if (!searchTerm) foundShows.textContent = "";
+  makePageForShows(filteredShows);
+}
 function searchEpisodes(allEpisodes, searchTerm) {
-  const lowerSearch = searchTerm.toLowerCase();
+  episodeSelect.value = "all";
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
   const filtered = allEpisodes.filter((episode) => {
-    const nameMatch = episode.name.toLowerCase().includes(lowerSearch);
+    const nameMatch = episode.name.toLowerCase().includes(lowerCaseSearchTerm);
     const summaryMatch = episode.summary
-      ? episode.summary.toLowerCase().includes(lowerSearch)
+      ? episode.summary.toLowerCase().includes(lowerCaseSearchTerm)
       : false;
     return nameMatch || summaryMatch;
   });
-
   const stats = document.getElementById("search-stats");
   stats.textContent = `Displaying ${filtered.length} / ${allEpisodes.length} episodes`;
 
@@ -147,10 +218,26 @@ function populateSelect(allEpisodes) {
     if (selectedId === "all") {
       makePageForEpisodes(allEpisodes);
     } else {
+      searchInput.value = "";
+
+      searchStatsElm.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
       const selectedEpisode = allEpisodes.filter((ep) => ep.id == selectedId);
       makePageForEpisodes(selectedEpisode);
     }
   };
+}
+
+function showShowsPage() {
+  showHeader.classList.remove("hidden");
+  showView.classList.remove("hidden");
+  episodeHeader.classList.add("hidden");
+  episodeView.classList.add("hidden");
+}
+function showEpisodesPage() {
+  showHeader.classList.add("hidden");
+  showView.classList.add("hidden");
+  episodeHeader.classList.remove("hidden");
+  episodeView.classList.remove("hidden");
 }
 
 window.onload = setup;

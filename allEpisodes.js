@@ -25,6 +25,8 @@ async function getAllShows() {
   }
 }
 
+getAllShows();
+
 // Function to get episodes based on a specific show ID (Requirement 3)
 async function getEpisodesForShow(showId) {
   try {

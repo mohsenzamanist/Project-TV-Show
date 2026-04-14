@@ -24,3 +24,23 @@ section h3 {
   padding: 0.5rem 1rem;
   border: 1px solid black;
 }
+
+.hidden {
+  display: none !important;
+}
+
+.show-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.episode-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.episode-header {
+  display: flex;
+  justify-content: center;
+}

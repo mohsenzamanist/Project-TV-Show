@@ -10,19 +10,50 @@
 
   <body>
     <header class="controls">
-      <select id="show-select">
-        <option value="">Select a show...</option>
-      </select>
-      <select id="episode-select">
-        <option value="all">All episodes</option>
-      </select>
-      <input type="text" id="search-input" placeholder="Search episodes..." />
-      <span id="search-stats"></span>
+      <div class="show-header hidden" id="show-header">
+        <span>Filtering for: </span>
+        <input type="text" id="search-show" placeholder="Search shows..." />
+        <span id="found-shows"></span>
+      </div>
+      <div class="episode-header hidden" id="episode-header">
+        <p id="back-to-shows">&larr;Back</p>
+        <select id="show-select">
+          <option value="">Select a show...</option>
+        </select>
+        <select id="episode-select">
+          <option value="all">All episodes</option>
+        </select>
+        <input type="text" id="search-input" placeholder="Search episodes..." />
+        <span id="search-stats"></span>
+      </div>
     </header>
 
-    <main id="root"></main>
+    <main id="root">
+      <section class="show-view hidden" id="show-view"></section>
+      <section class="episode-view hidden" id="episode-view"></section>
+    </main>
 
-    <template id="movie-card">
+    <template id="show-card-template">
+      <section class="show-card">
+        <div>
+          <div>
+            <h3></h3>
+          </div>
+          <div>
+            <img src="" alt="" />
+            <p id="summary"></p>
+            <a href="" target="_blank">View on TVMaze</a>
+          </div>
+        </div>
+        <div>
+          <p id="rated"><b>Rated: </b></p>
+          <p id="genres"><b>Genres: </b></p>
+          <p id="status"><b>Status: </b></p>
+          <p id="runtime"><b>Runtime: </b></p>
+        </div>
+      </section>
+    </template>
+    <template id="episode-card-template">
       <section class="episode-card">
         <h3></h3>
         <img src="" alt="" />
