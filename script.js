@@ -74,10 +74,9 @@ function makePageForShows(allShows) {
 
       showCard.querySelector("#summary").innerHTML = summary;
       showCard.querySelector("#rated").textContent += average;
-      showCard.querySelector("#genres").textContent += genres.reduce(
-        (acc, curr) => (acc += ` ${curr}`),
-        "",
-      );
+      showCard.querySelector("#genres").textContent += genres
+        .reduce((acc, curr) => (acc += ` ${curr} |`), "")
+        .slice(0, -1);
       showCard.querySelector("#status").textContent += status;
       showCard.querySelector("#runtime").textContent += runtime;
 
