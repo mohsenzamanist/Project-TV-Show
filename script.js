@@ -11,8 +11,12 @@ const backToShowsView = document.getElementById("back-to-shows");
 const foundShows = document.getElementById("found-shows");
 const searchStatsElm = document.getElementById("search-stats");
 
-let episodesCache = {};
-let showsCache = {};
+const cache = {
+  episodes: {},
+  shows: {},
+};
+// let cache.episodes = {};
+// let cache.shows = {};
 function skeletonLoader(text = "Data being loaded...") {
   episodeView.innerHTML = `<h3>${text}</h3>`;
 }
@@ -29,7 +33,7 @@ async function setup() {
     allShows.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
     );
-    showsCache = allShows;
+    cache.shows = allShows;
     makePageForShows(allShows);
     searchShow.addEventListener("input", (e) => {
       searchShows(e.target.value.toLowerCase(), allShows);
@@ -62,12 +66,12 @@ function makePageForShows(allShows) {
       title.dataset.id = id;
       title.addEventListener("click", async (e) => {
         const id = e.target.dataset.id;
-        if (!episodesCache[id]) {
-          episodesCache[id] = await getAllEpisodes(id);
+        if (!cache.episodes[id]) {
+          cache.episodes[id] = await getAllEpisodes(id);
         }
         showSelect.value = id;
 
-        initEpisodesUI(episodesCache[id]);
+        initEpisodesUI(cache.episodes[id]);
       });
       showCard.querySelector("img").alt = name;
       showCard.querySelector("img").src = medium;
@@ -101,9 +105,9 @@ function populateShowsDropDown(allShows) {
     if (id) {
       skeletonLoader("Loading episodes for selected show...");
       // Requirement 3: Fetch episodes for specific show
-      if (!episodesCache[id]) episodesCache[id] = await getAllEpisodes(id);
+      if (!cache.episodes[id]) cache.episodes[id] = await getAllEpisodes(id);
       // Initialize the UI with the new data
-      initEpisodesUI(episodesCache[id]);
+      initEpisodesUI(cache.episodes[id]);
     } else {
       episodeView.innerHTML =
         "<h3>Please select a show from the dropdown above.</h3>";
@@ -173,7 +177,7 @@ function makePageForEpisodes(episodeList) {
   episodeView.append(...episodeCards);
 }
 
-function searchShows(searchTerm = "", showsList = showsCache) {
+function searchShows(searchTerm = "", showsList = cache.shows) {
   const filteredShows = showsList.filter(
     ({ name, genres, summary }) =>
       name.toLowerCase().includes(searchTerm) ||
