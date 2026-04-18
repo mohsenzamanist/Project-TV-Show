@@ -1,46 +1,94 @@
-body {
-  margin: 0;
-}
-#root {
-  margin: 0;
-  background-color: rgb(204, 193, 193);
-  color: black;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  justify-content: center;
-  gap: 2rem;
-  padding: 1rem 2rem;
+html {
+  box-sizing: border-box;
+  font-size: 100%;
 }
 
-section {
-  width: 70%;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  color: hsl(0, 0%, 11%);
+}
+main {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+main section {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
   background-color: white;
   text-align: center;
   border-radius: 1rem;
-  padding: 0 3rem;
+  gap: 1rem;
 }
 
-section h3 {
-  padding: 0.5rem 1rem;
-  border: 1px solid black;
+/* show view */
+.show-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  padding: 1rem;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+.show-card div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.show-card div div {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+}
+
+.show-card h1:hover {
+  cursor: pointer;
+  color: aqua;
+  text-decoration: underline;
+}
+
+.show-card .show-summary {
+  width: 90%;
+  text-align: left;
 }
 
 .hidden {
   display: none !important;
 }
 
-.show-view {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* episode view */
+
+.episode-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 1rem;
 }
+
 .episode-view {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
-.episode-header {
-  display: flex;
-  justify-content: center;
+.episode-card {
+  width: 100%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
 }

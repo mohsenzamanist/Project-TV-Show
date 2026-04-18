@@ -55,7 +55,7 @@ function makePageForShows(allShows) {
       const { medium } = image;
       const { average } = rating;
       const showCard = showCardTemplate.content.cloneNode(true);
-      const title = showCard.querySelector("h3");
+      const title = showCard.querySelector("h1");
       title.textContent = name;
       title.dataset.id = id;
       title.addEventListener("click", async (e) => {
@@ -69,6 +69,7 @@ function makePageForShows(allShows) {
       });
       showCard.querySelector("img").alt = name;
       showCard.querySelector("img").src = medium;
+
       showCard.querySelector("#summary").innerHTML = summary;
       showCard.querySelector("#rated").textContent += average;
       showCard.querySelector("#genres").textContent += genres.reduce(
