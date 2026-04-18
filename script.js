@@ -12,6 +12,7 @@ const foundShows = document.getElementById("found-shows");
 const searchStatsElm = document.getElementById("search-stats");
 
 let episodesCache = {};
+let showsCache = {};
 function skeletonLoader(text = "Data being loaded...") {
   episodeView.innerHTML = `<h3>${text}</h3>`;
 }
@@ -28,6 +29,7 @@ async function setup() {
     allShows.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
     );
+    showsCache = allShows;
     makePageForShows(allShows);
     searchShow.addEventListener("input", (e) => {
       searchShows(e.target.value.toLowerCase(), allShows);
@@ -39,7 +41,7 @@ async function setup() {
 
 function makePageForShows(allShows) {
   showView.innerHTML = "";
-  populateShowSelect(allShows);
+  populateShowsDropDown(allShows);
   const showCardTemplate = document.getElementById("show-card-template");
   const showCards = allShows.map(
     ({
@@ -86,7 +88,7 @@ function makePageForShows(allShows) {
   showView.append(...showCards);
 }
 // Requirement 1 & 2: Handles the Show Dropdown
-function populateShowSelect(allShows) {
+function populateShowsDropDown(allShows) {
   const options = allShows.map(({ name, id }) => {
     const option = document.createElement("option");
     option.value = id;
@@ -115,12 +117,13 @@ function populateShowSelect(allShows) {
 function initEpisodesUI(episodes) {
   searchInput.value = "";
   makePageForEpisodes(episodes);
-  populateSelect(episodes);
+  populateEpisodesDropDown(episodes);
   showEpisodesPage();
 
   backToShowsView.addEventListener("click", () => {
     searchShow.value = "";
     foundShows.textContent = "";
+    searchShows();
     showShowsPage();
   });
 
@@ -171,8 +174,8 @@ function makePageForEpisodes(episodeList) {
   episodeView.append(...episodeCards);
 }
 
-function searchShows(searchTerm, allShows) {
-  const filteredShows = allShows.filter(
+function searchShows(searchTerm = "", showsList = showsCache) {
+  const filteredShows = showsList.filter(
     ({ name, genres, summary }) =>
       name.toLowerCase().includes(searchTerm) ||
       summary.toLowerCase().includes(searchTerm) ||
@@ -198,7 +201,7 @@ function searchEpisodes(allEpisodes, searchTerm) {
   makePageForEpisodes(filtered);
 }
 
-function populateSelect(allEpisodes) {
+function populateEpisodesDropDown(allEpisodes) {
   const select = document.getElementById("episode-select");
   // Requirement 4: Clear existing episode options
   select.innerHTML = '<option value="all">All episodes</option>';

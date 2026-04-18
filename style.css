@@ -81,6 +81,12 @@ main section {
   gap: 1rem;
 }
 
+.episode-header > p:hover {
+  color: #f3b63c;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .episode-view {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
