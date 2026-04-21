@@ -66,7 +66,7 @@ function makePageForShows(allShows) {
       title.dataset.id = id;
       title.addEventListener("click", async (e) => {
         const id = e.target.dataset.id;
-        if (!cache.episodes[id]) {
+        if (!cache.episodes[id] || cache.episodes[id].length === 0) {
           cache.episodes[id] = await getAllEpisodes(id);
         }
         showSelect.value = id;
